@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "NodeSecureAuth",
+			"path": "."
+		},
+		{
+			"name": "models",
+			"path": "../Downloads/NodeSecureAuth/models"
+		}
+	],
+	"settings": {}
+}

@@ -1,0 +1,57 @@
+@JWT_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjg4YTI0Yjk1ZWU0MzBiZGE0YTBlMTc0In0sImlhdCI6MTc1Mzg4NDUxMSwiZXhwIjoxNzUzODg4MTExfQ.YRZ_9A0AdAOstY8uUtylqFJBeOyvth4UAfiwSebwfVc
+@ITEM_ID   = <oluşturulan item ID’sini buraya yazın>
+
+### Kullanıcı kaydı (register)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "eneseryasan",
+    "email": "eeryasan1@example.com",
+    "password": "ziraattk?!"
+}
+
+### Kullanıcı adı veya e-posta ile giriş (login)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "usernameOrEmail": "enes eryasan",
+    "password": "ziraattk?!"
+}
+
+### Yeni item oluştur (item create)
+POST http://localhost:3000/api/items
+Content-Type: application/json
+Authorization: Bearer {{JWT_TOKEN}}
+
+{
+    "name": "İlk görev",
+    "description": "Bu benim ilk itemim."
+}
+
+### Tüm item'ları getir
+GET http://localhost:3000/api/users/
+Authorization: Bearer {{JWT_TOKEN}}
+
+### Tek bir item getir
+GET http://localhost:3000/api/items/{{ITEM_ID}}
+Authorization: Bearer {{JWT_TOKEN}}
+
+### Bir item'ı güncelle
+PUT http://localhost:3000/api/items/{{ITEM_ID}}
+Content-Type: application/json
+Authorization: Bearer {{JWT_TOKEN}}
+
+{
+    "name": "Güncellenmiş görev",
+    "description": "Açıklama güncellendi."
+}
+
+### Bir item'ı sil
+DELETE http://localhost:3000/api/items/{{ITEM_ID}}
+Authorization: Bearer {{JWT_TOKEN}}
+// Tests sekmesine yapıştırın
+if (pm.response.code === 200 && pm.response.json().token) {
+  pm.environment.set("authToken", pm.response.json().token);
+}
