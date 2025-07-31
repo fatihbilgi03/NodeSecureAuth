@@ -4,26 +4,6 @@ const bcrypt = require('bcryptjs');
 const User   = require('../models/User');
 const auth   = require('../middleware/authMiddleware');   // JWT ara katmanı
 
-/**
- * TOPLU KULLANICI OLUŞTURMA (SEED)
- * POST /api/users/seed
- * Body beklemez; aşağıdaki sabit diziyi kullanır.
- */
-router.post('/seed', async (req, res) => {
-  const initialUsers = [
-    { username: 'abcde', email: 'ens3@example.com', password: 'ziraattk?!' },
-    { username: 'user2',      email: 'user2@example.com',      password: 'pass2'      },
-    { username: 'user3',      email: 'user3@example.com',      password: 'pass3'      },
-    // ... dilediğin kadar kullanıcı ekle
-  ];
-  try {
-    const seeded = await User.seedUsers(initialUsers);
-    res.json({ message: 'Users seeded', seeded });
-  } catch (err) {
-    console.error('Seed hatası:', err);
-    res.status(500).json({ message: 'Seed işlemi başarısız', error: err.message });
-  }
-});
 
 /** ------------------------------------------------------------------
  * TÜM KULLANICILARI GETİR      GET /api/users
