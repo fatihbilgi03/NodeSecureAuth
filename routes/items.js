@@ -21,6 +21,7 @@ router.post('/', auth, async (req, res) => {
       userId: req.user.id
     });
 
+    console.log("MERHABA BEN GIT");
     await item.save();
     return res.status(201).json(item);
   } catch (err) {
