@@ -9,7 +9,6 @@ const Item = require('../models/Item');
 router.delete('/:id', auth, async (req, res) => {
   const { id } = req.params;
 
-  // 1. Geçerli ObjectId mi?
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: 'Geçersiz item ID.' });
   }
@@ -67,5 +66,38 @@ router.post('/', auth, async (req, res) => {
 });
 
 // PUT EKLE
+// PUT EKLE
+
+// PUT /api/items/:id
+router.put('/:id', auth, async (req, res) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+  console.log('🟢 [items] PUT isteği geldi, id =', id);
+
+  // 1. Geçerli ObjectId mi?
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Geçersiz item ID.' });
+  }
+
+  try {
+    // 2. Item’ı güncelle
+    const item = await Item.findByIdAndUpdate(
+      id,
+      { name: name?.trim(), description: description?.trim() },
+      { new: true, runValidators: true }
+    );
+    if (!item) {
+      return res.status(404).json({ message: 'Item bulunamadı.' });
+    }
+    // 3. Güncellenmiş item’ı dön
+    return res.json(item);
+  } catch (err) {
+    console.error('PUT /api/items/:id error:', err);
+    return res.status(500).json({ message: 'Sunucu hatası.' });
+  }
+});
+
+
+
 
 module.exports = router;
