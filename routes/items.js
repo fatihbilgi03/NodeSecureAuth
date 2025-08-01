@@ -1,7 +1,43 @@
+
 // routes/items.js
 const router = require('express').Router();
-const auth   = require('../middleware/authMiddleware');
-const Item   = require('../models/Item');
+const mongoose = require('mongoose');
+const auth = require('../middleware/authMiddleware');
+const Item = require('../models/Item');
+
+// DELETE /api/items/:id
+router.delete('/:id', auth, async (req, res) => {
+  const { id } = req.params;
+
+  // 1. Geçerli ObjectId mi?
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Geçersiz item ID.' });
+  }
+
+  try {
+    // 2. Item'ı bul
+    const item = await Item.findById(id);
+    if (!item) {
+      return res.status(404).json({ message: 'Item bulunamadı.' });
+    }
+
+    // 3. Yetki kontrolü: sadece sahibi veya admin silebilir
+    //    Burada req.user.role tanımlıysa admin kontrolü ekleyebilirsiniz
+    if (item.userId.toString() !== req.user.id /* sahibi değilse */ 
+        /* && req.user.role !== 'admin' */) {
+      return res.status(403).json({ message: 'Bu işlemi yapmaya yetkiniz yok.' });
+    }
+
+    // 4. Silme işlemi
+    await item.deleteOne();
+
+    return res.status(200).json({ message: 'Item başarıyla silindi.' });
+  } catch (err) {
+    console.error('DELETE /api/items/:id error:', err);
+    return res.status(500).json({ message: 'Sunucu hatası.' });
+  }
+});
+
 
 
 // POST /api/items
@@ -30,45 +66,6 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-
-
-// DELETE /api/items
-// id’yi artık URL param değil, header’dan okuyacağız
-router.delete('/', auth, async (req, res) => {
-  // 1. ID’yi header’dan al
-  const itemId = req.headers['x-item-id'];
-  if (!itemId) {
-    return res.status(400).json({ message: 'Header “x-item-id” eksik.' });
-  }
-
-  try {
-    // 2. Geçerli ObjectId mi kontrol et (opsiyonel ama tavsiye edilir)
-    if (!Item.schema.path('_id').casterConstructor.Types.ObjectId.isValid(itemId)) {
-      return res.status(400).json({ message: 'Geçersiz item ID.' });
-    }
-
-    // 3. Item’ı bul
-    const item = await Item.findById(itemId);
-    if (!item) {
-      return res.status(404).json({ message: 'Item bulunamadı.' });
-    }
-
-    // 4. Yetki kontrolü
-    if (req.user.role !== 'admin' && item.owner.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Bu işlemi yapmaya yetkiniz yok.' });
-    }
-
-    // 5. Sil
-    await item.remove();
-    res.json({ message: 'Ürün başarıyla silindi.' });
-  } catch (err) {
-    console.error('DELETE /api/items header-id error:', err);
-    res.status(500).json({ message: 'Sunucu hatası.' });
-  }
-});
-
-// Item guncelleme
-
-
+// PUT EKLE
 
 module.exports = router;
