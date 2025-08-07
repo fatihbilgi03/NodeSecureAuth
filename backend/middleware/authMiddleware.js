@@ -1,6 +1,27 @@
+
+
 // middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
+module.exports = function (req, res, next) {
+  // 1) Header’dan token’ı çek (Bearer <token>)
+  const authHeader = req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Token bulunamadı, yetkisiz.' });
+  }
+  const token = authHeader.split(' ')[1];
 
+  try {
+    // 2) Token’ı doğrula
+    const decoded = jwt.verify(token, process.env.JWT_SECREaT_KEY);
+
+    // 3) decoded.user hem id, hem role içeriyor artık
+    req.user = decoded.user; 
+    next();
+  } catch (err) {
+    console.error('JWT doğrulama hatası:', err);
+    return res.status(401).json({ message: 'Geçersiz token.' });
+  }
+};
 function authMiddleware(req, res, next) {
   // Daha güvenli okuma:
   const authHeader = req.get('Authorization') || req.headers.authorization;

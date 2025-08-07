@@ -32,6 +32,25 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
+
+// (if not already imported, add this at the top alongside your other models)
+const UserItem = require('../models/ItemUser');
+
+// ——— Add below your GET /api/users/:id ———
+router.get('/:id/items', auth, async (req, res) => {
+  try {
+    const assignments = await UserItem
+      .find({ userId: req.params.id })
+      .populate('itemId');
+    const items = assignments.map(a => a.itemId);
+    res.json({ userId: req.params.id, items });
+  } catch (err) {
+    console.error('GET /:id/items error:', err);
+    res.status(500).json({ message: 'Sunucu hatası.' });
+  }
+});
+
+
 /** ------------------------------------------------------------------
  * KULLANICI GÜNCELLE           PUT /api/users/:id
  * ------------------------------------------------------------------*/
